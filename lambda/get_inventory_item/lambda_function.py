@@ -24,7 +24,7 @@ def lambda_handler(event, context):
     table = dynamodb.Table(TABLE_NAME)
 
     try:
-        # Query to get all items with id(PK) = "2"
+        # Query to get all items with id(PK) = "2".
         response = table.query(
             KeyConditionExpression=Key('id').eq('2')
         )
