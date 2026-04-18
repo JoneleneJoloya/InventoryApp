@@ -23,10 +23,12 @@ def convert_decimals(obj):
 def lambda_handler(event, context):
     table = dynamodb.Table(TABLE_NAME)
 
+    user_input = event['pathParameters']['id']
+    
     try:
-        # Query to get all items with id(PK) = "2".
+        # Query to get all items with id(PK).
         response = table.query(
-            KeyConditionExpression=Key('id').eq('2')
+            KeyConditionExpression=Key('id').eq(user_input)
         )
         items = response.get('Items', [])
 
