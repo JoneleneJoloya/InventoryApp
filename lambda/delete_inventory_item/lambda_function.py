@@ -1,9 +1,56 @@
-import boto3
 import json
+import boto3
+from boto3.dynamodb.conditions import Key
+from botocore.exceptions import ClientError
+from decimal import Decimal
+
+# Initialize the DynamoDB client
+dynamodb = boto3.resource('dynamodb')
+
+# Define the DynamoDB table name
+TABLE_NAME = 'Inventory'
+
+# Function to convert Decimal to int/float
+def convert_decimals(obj):
+    if isinstance(obj, list):
+        return [convert_decimals(i) for i in obj]
+    elif isinstance(obj, dict):
+        return {k: convert_decimals(v) for k, v in obj.items()}
+    elif isinstance(obj, Decimal):  
+        return int(obj) if obj % 1 == 0 else float(obj)  # Convert to int if whole number, else float
+    return obj
 
 def lambda_handler(event, context):
-    # Initialize a DynamoDB client
-    dynamo_client = boto3.client('dynamodb')
+    table = dynamodb.Table(TABLE_NAME)
 
-    # Name of the DynamoDB table
-    table_name = 'Inventory'
+    user_input = event['pathParameters']['id']
+    
+    try:
+        # Query to get all items with id(PK).
+        response = table.query(
+            KeyConditionExpression=Key('id').eq(user_input)
+        )
+        items = response.get('Items', [])
+
+        items = convert_decimals(items)
+
+        # Delete each item from query
+        for item in items:
+            table.delete_item(
+                Key={
+                    'id': item['id'],
+                    'location_id': item['location_id']
+                }
+            )
+    except Exception as e:
+        print(e)
+        return {
+            'statusCode': 500,
+            'body': json.dumps(f"Error deleting item: {str(e)}")
+        }
+
+    return {
+        'statusCode': 200,
+        'body': json.dumps(f"Item with ID {user_input} deleted successfully.")
+    }
+
