@@ -25,15 +25,19 @@ def lambda_handler(event, context):
     table = dynamodb.Table(TABLE_NAME)
 
     try:
-        # Query to get all items with SK = "1001" using the GSI
+        # use id instead of location_id to match with API Gateway resources
+        user_input = event['pathParameters']['id']
+        
+        # Query to get all items with location_id(SK) using the GSI
         response = table.query(
             IndexName=GSI_NAME,
-            KeyConditionExpression=Key('location_id').eq(1001)
+            KeyConditionExpression=Key('location_id').eq(int(user_input))
         )
         items = response.get('Items', [])
 
         # Convert Decimal values to JSON serializable types
         items = convert_decimals(items)
+
     except ClientError as e:
         print(f"Failed to query items: {e.response['Error']['Message']}")
         return {
