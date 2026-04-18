@@ -3,7 +3,6 @@ name: Deploy Website to S3 Bucket
 on:
   push:
     branches:
-      - 'dev'
       - 'main'
     paths:
       - 'index.html'

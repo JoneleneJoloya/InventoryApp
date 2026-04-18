@@ -3,7 +3,7 @@ name: Super-Linter
 
 on:
   push: 
-    branches: [main,dev] 
+    branches: [main] 
   pull_request:
     types: [opened, reopened]
   
