@@ -28,7 +28,7 @@ def lambda_handler(event, context):
         # use id instead of location_id to match with API Gateway resources
         user_input = event['pathParameters']['id']
         
-        # Query to get all items with location_id(SK) using the GSI
+        # Query to get all items with location_id(SK) using the GSI_SK_PK
         response = table.query(
             IndexName=GSI_NAME,
             KeyConditionExpression=Key('location_id').eq(int(user_input))
