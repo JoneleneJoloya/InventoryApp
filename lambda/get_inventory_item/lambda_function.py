@@ -33,24 +33,14 @@ def lambda_handler(event, context):
         items = response.get('Items', [])
 
         items = convert_decimals(items)
-
-        # Delete each item from query
-        for item in items:
-            table.delete_item(
-                Key={
-                    'id': item['id'],
-                    'location_id': item['location_id']
-                }
-            )
-    except Exception as e:
-        print(e)
+    except ClientError as e:
+        print(f"Failed to query items: {e.response['Error']['Message']}")
         return {
             'statusCode': 500,
-            'body': json.dumps(f"Error deleting item: {str(e)}")
+            'body': json.dumps('Failed to query items')
         }
 
     return {
         'statusCode': 200,
-        'body': json.dumps(f"Item with ID {user_input} deleted successfully.")
+        'body': json.dumps(items)
     }
-
